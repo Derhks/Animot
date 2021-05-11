@@ -52,19 +52,24 @@ def search_anime_id(anime_name: str, url: str) -> int:
 
 
 def get_anime_data(id_anime: int) -> dict:
-    url = f'https://kitsu.io/api/edge/anime/{id_anime}'
+    url = os.environ['URL_ANIMES']
+    full_url = f'{url}/{id_anime}'
 
-    return get(url=url)
+    return get(url=full_url)
 
 
 def get_anime(anime_name: str) -> Anime:
     global anime_id
-    url = 'https://kitsu.io/api/edge/anime?page[limit]=20&page[offset]=0'
+    url = os.environ['URL_ANIMES']
+    more_data = os.environ['URL_MORE_DATA']
 
-    anime_number = search_anime_id(anime_name=anime_name, url=url)
+    full_url = f'{url}?{more_data}'
+
+    anime_number = search_anime_id(anime_name=anime_name, url=full_url)
 
     if anime_number == 0:
-        flask.abort(404, 'No hay suficiente información')
+        msg_error = os.environ['ERROR_MESSAGE']
+        flask.abort(404, msg_error)
 
     data = get_anime_data(id_anime=anime_number)
 
@@ -152,24 +157,12 @@ def reply_message(text: str, last_word_position: int, length: int) -> dict:
     }
 
 
-def message(text: str, type_message: str, last_word_position=0) -> dict:
-    msg = ''
-
-    if type_message == 'status':
-        msg = status_message(text, length=120)
-
-    if type_message == 'reply':
-        msg = reply_message(text, last_word_position, length=140)
-
-    return msg
-
-
 def post_tweet(anime: Anime) -> dict:
     api = get_api()
 
     name = anime.name
     rating = anime.rating
-    info = message(anime.synopsis, 'status')  # data.get('synopsis')[:120] + '...'
+    info = status_message(anime.synopsis, length=120)
     synopsis_status = info['message']
 
     msg = f'{name}\nRating: {rating}\nSynopsis: {synopsis_status}'
@@ -196,9 +189,7 @@ def post_tweet(anime: Anime) -> dict:
 
 def reply_tweet(tweet_id: int, synopsis: str, last_word_position: int) -> None:
     api = get_api()
-
-    msg = message(synopsis, 'reply', last_word_position)
-
+    msg = reply_message(synopsis, last_word_position, length=140)
     len_slice = len(create_word_list(synopsis))
 
     try:
@@ -218,7 +209,6 @@ def reply_tweet(tweet_id: int, synopsis: str, last_word_position: int) -> None:
 @app.route('/<name>')
 def hello_world(name: str):
     anime = get_anime(name)
-
     synopsis = post_tweet(anime)
 
     if synopsis['is_long']:
