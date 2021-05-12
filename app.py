@@ -1,4 +1,3 @@
-import flask
 import os
 import requests
 import tweepy
@@ -12,77 +11,6 @@ from os.path import isfile
 load_dotenv()  # take environment variables from .env
 
 app = Flask(__name__)
-
-
-def get(url: str) -> dict:
-    try:
-        response = requests.get(url=url)
-
-    except requests.exceptions.HTTPError as Err:
-        raise Err
-
-    return response.json()
-
-
-def obtain_anime_data(url: str) -> dict:
-
-    return get(url=url)
-
-
-anime_id = 0
-
-
-def search_anime_id(anime_name: str, url: str) -> int:
-    global anime_id
-    response = obtain_anime_data(url=url)
-    next_page = True if 'next' in response['links'] else False
-
-    for idx in range(len(response['data'])):
-        slug = response['data'][idx]['attributes']['slug']
-        if slug == anime_name:
-            anime_id = response['data'][idx]['id']
-            break
-
-    if next_page:
-        if anime_id == 0:
-            url_next_page = response['links']['next']
-            search_anime_id(anime_name=anime_name, url=url_next_page)
-
-    return anime_id
-
-
-def get_anime_data(id_anime: int) -> dict:
-    url = os.environ['URL_ANIMES']
-    full_url = f'{url}/{id_anime}'
-
-    return get(url=full_url)
-
-
-def get_anime(anime_name: str) -> Anime:
-    global anime_id
-    url = os.environ['URL_ANIMES']
-    more_data = os.environ['URL_MORE_DATA']
-
-    full_url = f'{url}?{more_data}'
-
-    anime_number = search_anime_id(anime_name=anime_name, url=full_url)
-
-    if anime_number == 0:
-        msg_error = os.environ['ERROR_MESSAGE']
-        flask.abort(404, msg_error)
-
-    data = get_anime_data(id_anime=anime_number)
-
-    anime_id = 0
-
-    anime = Anime(
-        name=data['data']['attributes']['canonicalTitle'],
-        synopsis=data['data']['attributes']['synopsis'],
-        average_rating=data['data']['attributes']['averageRating'],
-        image=data['data']['attributes']['posterImage']['large']
-    )
-
-    return anime
 
 
 def download_image(link: str) -> None:
@@ -160,7 +88,7 @@ def reply_message(text: str, last_word_position: int, length: int) -> dict:
 def post_tweet(anime: Anime) -> dict:
     api = get_api()
 
-    name = anime.name
+    name = anime.canonical_title
     rating = anime.rating
     info = status_message(anime.synopsis, length=120)
     synopsis_status = info['message']
@@ -208,7 +136,8 @@ def reply_tweet(tweet_id: int, synopsis: str, last_word_position: int) -> None:
 
 @app.route('/<name>')
 def hello_world(name: str):
-    anime = get_anime(name)
+    anime = Anime(name)
+    anime.info_anime()
     synopsis = post_tweet(anime)
 
     if synopsis['is_long']:
