@@ -1,7 +1,8 @@
 import flask
 import os
 
-from utils import get
+from datetime import datetime
+from utils import get, postgres_execute
 
 
 class Anime:
@@ -13,6 +14,7 @@ class Anime:
         self.synopsis = ''
         self.rating = ''
         self.image = ''
+        self.published_at = datetime.now()
 
     def search_anime_id(self, url: str) -> int:
         obtain_anime_data = get(url=url)
@@ -56,3 +58,18 @@ class Anime:
         self.synopsis = data['data']['attributes']['synopsis']
         self.rating = data['data']['attributes']['averageRating']
         self.image = data['data']['attributes']['posterImage']['large']
+
+    def save(self):
+        postgres_insert_query = """
+            INSERT INTO animes_viewed (canonical_title, synopsis, rating, image, published_at)
+            VALUES (%s,%s,%s,%s,%s)
+        """
+        record_to_insert = (
+            self.canonical_title,
+            self.synopsis,
+            self.rating,
+            self.image,
+            self.published_at
+        )
+
+        postgres_execute(postgres_insert_query, record_to_insert)

@@ -147,6 +147,8 @@ def hello_world(name: str):
             last_word_position=synopsis['idx']
         )
 
+    anime.save()
+
     return 'The anime has been published'
 
 
