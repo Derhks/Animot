@@ -24,7 +24,9 @@ services:
     depends_on:
       db:
         condition: service_healthy
-
-volumes:
-  postgres:
-
+    healthcheck:
+      test: [ "CMD-SHELL", "flask db init && flask db migrate && flask db upgrade" ]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
