@@ -1,3 +1,4 @@
+from create_table import create_table
 from datetime import datetime
 from settings import db
 
@@ -23,13 +24,27 @@ class Anime(db.Model):
         return f'<Anime {self.canonical_title}>'
 
     def save(self):
-        db.session.add(
-            Anime(
-                canonical_title=self.canonical_title,
-                synopsis=self.synopsis,
-                rating=self.rating,
-                image=self.image
+        try:
+            db.session.add(
+                Anime(
+                    canonical_title=self.canonical_title,
+                    synopsis=self.synopsis,
+                    rating=self.rating,
+                    image=self.image
+                )
             )
-        )
 
-        db.session.commit()
+            db.session.commit()
+        except Exception as Err:
+            if Err:
+                create_table()
+                db.session.add(
+                    Anime(
+                        canonical_title=self.canonical_title,
+                        synopsis=self.synopsis,
+                        rating=self.rating,
+                        image=self.image
+                    )
+                )
+
+                db.session.commit()

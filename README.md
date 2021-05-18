@@ -4,6 +4,7 @@
 ## Table of Content
 
 * [Development Environment Configuration](#development-environment-configuration)
+* [Run development version with docker](#run-development-version-with-docker)  
 * [Test the Application](#test-the-application)
 * [Built With](#built-with)
 * [Authors](#authors)
@@ -105,6 +106,23 @@ Let's create the table we will use in the project within our database
 
   ```bash
   python -m flask run
+  ```
+
+
+## Run development version with docker
+
+Run the following command to initialize the project using docker:
+
+```bash
+  docker-compose up --remove-orphans
+  ```
+
+You can stop the containers and also delete everything that was 
+created at initialization by executing the following command, to 
+do this you must open a new console:
+
+```bash
+  docker-compose down --rmi all && sudo rm -rf data/
   ```
 
 
