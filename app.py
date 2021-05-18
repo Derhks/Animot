@@ -1,22 +1,19 @@
-import os
 import requests
 import tweepy
 
-from dotenv import load_dotenv
-from flask import Flask
 from models.anime import Anime
 from os import remove
 from os.path import isfile
-
-load_dotenv()  # take environment variables from .env
-
-app = Flask(__name__)
+from settings import (
+    app, URL_IMAGE, CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET
+)
+from utils import RequestInfoAnime
 
 
 def download_image(link: str) -> None:
     try:
         res = requests.get(link)
-        file = open(os.environ['URL_IMAGE'], "wb")
+        file = open(URL_IMAGE, "wb")
         file.write(res.content)
         file.close()
         res.raise_for_status()
@@ -27,10 +24,10 @@ def download_image(link: str) -> None:
 
 def get_api() -> tweepy.API:
     # Authenticate to Twitter
-    consumer_key = os.environ['CONSUMER_KEY']
-    consumer_secret = os.environ['CONSUMER_SECRET']
-    access_token = os.environ['ACCESS_TOKEN']
-    access_token_secret = os.environ['ACCESS_TOKEN_SECRET']
+    consumer_key = CONSUMER_KEY
+    consumer_secret = CONSUMER_SECRET
+    access_token = ACCESS_TOKEN
+    access_token_secret = ACCESS_TOKEN_SECRET
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
 
@@ -94,7 +91,7 @@ def post_tweet(anime: Anime) -> dict:
     synopsis_status = info['message']
 
     msg = f'{name}\nRating: {rating}\nSynopsis: {synopsis_status}'
-    url_image = os.environ['URL_IMAGE']
+    url_image = URL_IMAGE
 
     try:
         download_image(anime.image)
@@ -136,8 +133,17 @@ def reply_tweet(tweet_id: int, synopsis: str, last_word_position: int) -> None:
 
 @app.route('/<name>')
 def hello_world(name: str):
-    anime = Anime(name)
-    anime.info_anime()
+    info = RequestInfoAnime(anime=name)
+    anime_data = info.get()
+    anime = Anime(
+        canonical_title=anime_data['canonical_title'],
+        synopsis=anime_data['synopsis'],
+        rating=anime_data['rating'],
+        image=anime_data['image']
+    )
+
+    anime.save()
+
     synopsis = post_tweet(anime)
 
     if synopsis['is_long']:
@@ -146,8 +152,6 @@ def hello_world(name: str):
             synopsis=anime.synopsis,
             last_word_position=synopsis['idx']
         )
-
-    anime.save()
 
     return 'The anime has been published'
 

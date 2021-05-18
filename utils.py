@@ -1,7 +1,6 @@
-import psycopg2
+import flask
+import os
 import requests
-
-from config import config
 
 
 def get(url: str) -> dict:
@@ -14,32 +13,53 @@ def get(url: str) -> dict:
     return response.json()
 
 
-def postgres_execute(*args) -> None:
-    """
-    Connect to the PostgreSQL database server and run the
-    command on the database
-    """
-    conn = None
-    try:
-        # read connection parameters
-        params = config()
+class RequestInfoAnime:
+    anime_id = 0
 
-        # connect to the PostgreSQL server
-        conn = psycopg2.connect(**params)
+    def __init__(self, anime: str):
+        self.name = anime
 
-        # create a cursor
-        cur = conn.cursor()
+    def search_anime_id(self, url: str) -> int:
+        obtain_anime_data = get(url=url)
+        next_page = True if 'next' in obtain_anime_data['links'] else False
 
-        # insert info
-        cur.execute(*args)
+        for idx in range(len(obtain_anime_data['data'])):
+            slug = obtain_anime_data['data'][idx]['attributes']['slug']
+            if slug == self.name:
+                self.anime_id = obtain_anime_data['data'][idx]['id']
+                break
 
-        # close the communication with the PostgreSQL
-        cur.close()
+        if next_page:
+            if self.anime_id == 0:
+                url_next_page = obtain_anime_data['links']['next']
+                self.search_anime_id(url=url_next_page)
 
-        # commit the changes
-        conn.commit()
-    except (Exception, psycopg2.DatabaseError) as error:
-        raise error
-    finally:
-        if conn is not None:
-            conn.close()
+        return self.anime_id
+
+    @staticmethod
+    def get_anime_data(id_anime: int) -> dict:
+        url = os.environ['URL_ANIMES']
+        full_url = f'{url}/{id_anime}'
+
+        return get(url=full_url)
+
+    def get(self) -> dict:
+        url = os.environ['URL_ANIMES']
+        more_data = os.environ['URL_MORE_DATA']
+
+        full_url = f'{url}?{more_data}'
+
+        anime_number = self.search_anime_id(url=full_url)
+
+        if anime_number == 0:
+            msg_error = os.environ['ERROR_MESSAGE']
+            flask.abort(404, msg_error)
+
+        data = self.get_anime_data(id_anime=int(anime_number))
+
+        return {
+            'canonical_title': data['data']['attributes']['canonicalTitle'],
+            'synopsis': data['data']['attributes']['synopsis'],
+            'rating': data['data']['attributes']['averageRating'],
+            'image': data['data']['attributes']['posterImage']['large']
+        }
