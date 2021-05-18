@@ -49,7 +49,7 @@ Verify that you have PostgreSQL installed on your computer, run the
 following command to find out which version you have installed:
 
 ```bash
-  postgres -V
+  psql -V
   ```
 
 If you do not see the PostgreSQL version, you must install it.
@@ -78,11 +78,11 @@ execute the following commands:
 Let's create the table we will use in the project within our database
 
 ```bash
-  python create_table.py
+  flask db init && flask db migrate && flask db upgrade
   ```
 
 ### Run server
-
+  
 - You can verify that the environment variables were added 
   correctly with the following command:
 
@@ -133,6 +133,13 @@ do this you must open a new console:
 You can test the endpoint locally with the following curl:
   ```bash
   curl --location --request GET 'http://127.0.0.1:5000/naruto'
+  ```
+
+### Docker
+
+You can test the endpoint in docker with the following curl:
+  ```bash
+  curl --location --request GET 'http://0.0.0.0:5000/naruto'
   ```
 
 ## Built With

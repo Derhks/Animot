@@ -1,10 +1,10 @@
 import os
 import unittest
 
-from models.anime import Anime
+from utils import RequestInfoAnime
 
 
-class TestClassAnime(unittest.TestCase):
+class TestRequestInfoAnime(unittest.TestCase):
 
     def test_search_anime_id_first_page(self):
         anime_name = 'naruto'
@@ -15,7 +15,7 @@ class TestClassAnime(unittest.TestCase):
 
         want = '11'
 
-        got = Anime.search_anime_id(Anime(anime_name), url=full_url)
+        got = RequestInfoAnime.search_anime_id(RequestInfoAnime(anime_name), url=full_url)
 
         self.assertEqual(want, got)
 
@@ -28,7 +28,7 @@ class TestClassAnime(unittest.TestCase):
 
         want = '24'
 
-        got = Anime.search_anime_id(Anime(anime_name), url=full_url)
+        got = RequestInfoAnime.search_anime_id(RequestInfoAnime(anime_name), url=full_url)
 
         self.assertEqual(want, got)
 
@@ -41,7 +41,7 @@ class TestClassAnime(unittest.TestCase):
 
         want = '58'
 
-        got = Anime.search_anime_id(Anime(anime_name), url=full_url)
+        got = RequestInfoAnime.search_anime_id(RequestInfoAnime(anime_name), url=full_url)
 
         self.assertEqual(want, got)
 
@@ -54,7 +54,7 @@ class TestClassAnime(unittest.TestCase):
 
         want = 0
 
-        got = Anime.search_anime_id(Anime(anime_name), url=full_url)
+        got = RequestInfoAnime.search_anime_id(RequestInfoAnime(anime_name), url=full_url)
 
         self.assertEqual(want, got)
 
@@ -63,7 +63,7 @@ class TestClassAnime(unittest.TestCase):
 
         want = 'Naruto'
 
-        got = Anime.get_anime_data(int(anime_id))
+        got = RequestInfoAnime.get_anime_data(int(anime_id))
 
         self.assertEqual(want, got['data']['attributes']['canonicalTitle'])
 
@@ -71,20 +71,16 @@ class TestClassAnime(unittest.TestCase):
         anime_name = 'naruto'
         want = 'Naruto'
 
-        got = Anime(anime_name)
+        got = RequestInfoAnime(anime_name).get()
 
-        got.info_anime()
-
-        self.assertEqual(want, got.canonical_title)
+        self.assertEqual(want, got['canonical_title'])
 
     def test_info_anime_fail(self):
         anime_name = 'kuroshitsuji'
         want = 404
 
-        got = Anime(anime_name)
-
         try:
-            got.info_anime()
+            RequestInfoAnime(anime_name).get()
         except Exception as Err:
             self.assertEqual(want, Err.code)
 
