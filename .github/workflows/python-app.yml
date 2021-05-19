@@ -35,5 +35,6 @@ jobs:
       env:
         URL_IMAGE: ${{ secrets.URL_IMAGE }}
         CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}
+        CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
       run: |
         pytest
