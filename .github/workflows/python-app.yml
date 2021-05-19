@@ -36,5 +36,6 @@ jobs:
         URL_IMAGE: ${{ secrets.URL_IMAGE }}
         CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}
         CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
       run: |
         pytest
