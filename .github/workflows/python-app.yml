@@ -38,5 +38,6 @@ jobs:
         CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+        URL_ANIMES: ${{ secrets.URL_ANIMES }}
       run: |
         pytest
