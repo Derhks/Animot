@@ -39,5 +39,6 @@ jobs:
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
         URL_ANIMES: ${{ secrets.URL_ANIMES }}
+        URL_MORE_DATA: ${{ secrets.URL_MORE_DATA }}
       run: |
         pytest
