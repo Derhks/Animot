@@ -37,7 +37,10 @@
   pip3 install -r requirements.txt
   ```
 
-- We must export the following environment variable
+- We must export the environment variables that we need in our project. 
+  Change the name of the example.env file to .env, fill in the 
+  environment variables with their corresponding value and finally execute 
+  the following command:
 
   ```bash
   export $(cat .env | grep -v ^# | xargs)
@@ -54,8 +57,10 @@ following command to find out which version you have installed:
 
 If you do not see the PostgreSQL version, you must install it.
 
-Run the setup_postgres.sql script to create the database, user and password 
-to be used in the project
+Run the setup_postgres.sql script to create the database, username 
+and password to be used in the project. Open the file and modify 
+username and password, these values must match the environment 
+variables POSTGRES_USER and POSTGRES_PASSWORD
 
 ```bash
   cat setup_postgres.sql | sudo -u postgres psql
