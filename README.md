@@ -86,6 +86,13 @@ Let's create the table we will use in the project within our database
   flask db init && flask db migrate && flask db upgrade
   ```
 
+If changes are made to any of the models, we must update 
+the tables in the database by executing the following command:
+
+```bash
+  flask db migrate && flask db upgrade
+  ```
+
 ### Run server
   
 - You can verify that the environment variables were added 

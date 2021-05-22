@@ -4,7 +4,7 @@ from settings import db
 
 
 class Anime(db.Model):
-    __tablename__ = 'animes_viewed'
+    __tablename__ = 'anime_posted'
 
     id = db.Column(db.Integer, primary_key=True)
     canonical_title = db.Column(db.Text, unique=True, nullable=False)
@@ -21,7 +21,7 @@ class Anime(db.Model):
         self.published_at = datetime.now()
 
     def __repr__(self):
-        return f'<Anime {self.canonical_title}>'
+        return f'<Anime: {self.canonical_title}>'
 
     def save(self):
         try:
