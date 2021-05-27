@@ -134,31 +134,11 @@ def reply_tweet(tweet_id: int, synopsis: str, last_word_position: int) -> None:
         raise Err
 
 
-def anime_was_published(anime: str) -> bool:
-    words_list = anime.split('-')
-    canonical_title = ''
-
-    for idx in range(len(words_list)):
-        word = words_list[idx]
-        new_word = list(word)
-        new_word[0] = word[0].upper()
-        canonical_title += ''.join(new_word)
-
-        if idx < len(words_list) - 1:
-            canonical_title += ' '
-
-    anime_viewed = FinishedAnime.query.filter_by(canonical_title=canonical_title)
-
-    if anime_viewed.first() is None:
-        return False
-
-    return anime_viewed.first().is_published
-
-
 @app.route('/<name>')
 def hello_world(name: str):
+    anime = FinishedAnime(name)
 
-    if anime_was_published(name):
+    if anime.was_published():
         return f'This anime has already been published'
 
     info = RequestInfoAnime(anime=name)
@@ -190,7 +170,7 @@ def hello_world(name: str):
 @app.route('/finished_anime/', methods=['POST'])
 def finished_anime():
     name = loads(request.data.decode())['canonical_title']
-    anime_viewed = FinishedAnime(canonical_title=name)
+    anime_viewed = FinishedAnime(anime_name=name)
     anime_viewed.save()
 
     return f'You have finished watching {name}'

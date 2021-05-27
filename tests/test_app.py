@@ -1,6 +1,6 @@
 import unittest
 
-from app import status_message, reply_message, anime_was_published
+from app import status_message, reply_message
 
 
 class TestAppFunctions(unittest.TestCase):
@@ -76,32 +76,5 @@ class TestAppFunctions(unittest.TestCase):
                'message': msg + '...',
                'idx': new_last_word_position
         }
-
-        self.assertEqual(got, want)
-
-    def test_anime_was_published_one_word(self):
-        anime = 'naruto'
-
-        got = anime_was_published(anime)
-
-        want = False
-
-        self.assertEqual(got, want)
-
-    def test_anime_was_published_two_words(self):
-        anime = 'one-piece'
-
-        got = anime_was_published(anime)
-
-        want = False
-
-        self.assertEqual(got, want)
-
-    def test_anime_was_published_three_words(self):
-        anime = 'prince-of-tennis'
-
-        got = anime_was_published(anime)
-
-        want = False
 
         self.assertEqual(got, want)
